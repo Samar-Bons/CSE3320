@@ -38,7 +38,7 @@
 
 #define MAX_COMMAND_SIZE 255    // The maximum command-line size
 
-#define MAX_NUM_ARGUMENTS 10    // Mav shell only supports five arguments
+#define MAX_NUM_ARGUMENTS 10     // Mav shell only supports five arguments
 
 int main()
 {

@@ -88,11 +88,33 @@ int main()
     // Now print the tokenized input as a debug check
     // \TODO Remove this code and replace with your shell functionality
 
-    int token_index  = 0;
-    for( token_index = 0; token_index < token_count; token_index ++ ) 
+    //  int token_index  = 0;
+    //for( token_index = 0; token_index < token_count; token_index ++ ) 
+    //{
+    //  printf("token[%d] = %s\n", token_index, token[token_index] );  
+    //}
+    pid_t pid = fork();
+    if ( pid == -1)
     {
-      printf("token[%d] = %s\n", token_index, token[token_index] );  
+        // When fork() returns -1, an error happened.
+        perror("fork failed: ");
+        exit( EXIT_FAILURE );
     }
+    else if ( pid == 0)
+    {
+
+        int ret = execvp(token[0],&token[0]);
+        if ( ret == -1)
+        {
+            perror("execl failed: ");
+        }
+    }
+    else
+    {
+        int status;
+        wait( &status );
+    }
+
 
     free( working_root );
 

@@ -85,6 +85,11 @@ int main()
         token_count++;
     }
 
+    if ((strcmp(token[0],"quit") == 0) || (strcmp(token[0],"exit") == 0 ))
+    {
+        exit(0);
+    }
+
     // Now print the tokenized input as a debug check
     // \TODO Remove this code and replace with your shell functionality
 

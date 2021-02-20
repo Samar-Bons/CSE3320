@@ -215,6 +215,20 @@ int main()
       continue;
     }
 
+    else if(strcmp(token[0],"cd") == 0)
+    {
+      if(token[1] == NULL)
+      {
+        chdir(getenv("HOME"));
+      }
+      else 
+      {
+        chdir(token[1]);
+      }
+      add_command(&head,0,cmd_str);
+      continue;
+    }
+
     /* if ((strcmp(token[0],"quit") == 0) || (strcmp(token[0],"exit") == 0 ))
     {
         exit(0);

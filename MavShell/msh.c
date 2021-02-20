@@ -208,6 +208,13 @@ int main()
       continue;
     }
 
+    else if(strcmp(token[0],"listpids") == 0 || strcmp(token[0],"showpids") == 0)
+    {
+      print_pid(head);
+      add_command(&head,0,cmd_str);
+      continue;
+    }
+
     /* if ((strcmp(token[0],"quit") == 0) || (strcmp(token[0],"exit") == 0 ))
     {
         exit(0);

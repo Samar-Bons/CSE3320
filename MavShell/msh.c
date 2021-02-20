@@ -57,6 +57,11 @@ int main()
     // is no input
     while( !fgets (cmd_str, MAX_COMMAND_SIZE, stdin) );
 
+    if(cmd_str == NULL)
+    {
+        continue;
+    }
+
     /* Parse input */
     char *token[MAX_NUM_ARGUMENTS];
 
@@ -84,12 +89,13 @@ int main()
       }
         token_count++;
     }
+    
 
-    if ((strcmp(token[0],"quit") == 0) || (strcmp(token[0],"exit") == 0 ))
+   /* if ((strcmp(token[0],"quit") == 0) || (strcmp(token[0],"exit") == 0 ))
     {
         exit(0);
     }
-
+    */
     // Now print the tokenized input as a debug check
     // \TODO Remove this code and replace with your shell functionality
 
@@ -111,7 +117,7 @@ int main()
         int ret = execvp(token[0],&token[0]);
         if ( ret == -1)
         {
-            perror("execl failed: ");
+            printf("%s: Command not found.\n",token[0]);
         }
     }
     else

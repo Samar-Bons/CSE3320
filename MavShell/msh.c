@@ -57,7 +57,7 @@ int main()
     // is no input
     while( !fgets (cmd_str, MAX_COMMAND_SIZE, stdin) );
 
-    if(cmd_str == NULL)
+    if(cmd_str[0] == '\n')
     {
         continue;
     }
@@ -89,8 +89,11 @@ int main()
       }
         token_count++;
     }
-    
 
+    if(strcmp(token[0],"exit") == 0 || strcmp(token[0],"quit") == 0)
+    {
+      exit(0);
+    }
    /* if ((strcmp(token[0],"quit") == 0) || (strcmp(token[0],"exit") == 0 ))
     {
         exit(0);

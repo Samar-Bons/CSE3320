@@ -100,7 +100,7 @@ void print_history(node *head)
 {
   if ( head == NULL)
   {
-    return NULL;
+    return;
   }
 
   node *temp = head;
@@ -123,7 +123,7 @@ void print_pid(node *head)
 {
   if ( head == NULL )
   {
-    return NULL;
+    return;
   }
 
   node *temp = head;
@@ -133,7 +133,7 @@ void print_pid(node *head)
   {
     if(temp->process_id)
     {
-      printf("%d: %ld\n",index++,(long)temp->process_id)
+      printf("%d: %ld\n",index++,(long)temp->process_id);
     }
     temp = temp->next;
   }
@@ -204,6 +204,8 @@ int main()
     else if(strcmp(token[0],"history") == 0)
     {
       print_history(head);
+      add_command(&head,0,cmd_str);
+      continue;
     }
 
     /* if ((strcmp(token[0],"quit") == 0) || (strcmp(token[0],"exit") == 0 ))
@@ -238,7 +240,7 @@ int main()
     }
     else
     {
-      add_command(head,pid,cmd_str);
+      add_command(&head,pid,cmd_str);
       int status;
       wait( &status );
     }

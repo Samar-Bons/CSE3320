@@ -96,6 +96,24 @@ void add_command(node **head, pid_t pid, char *cmd_str)
   }
 }
 
+char *retrieve_command(int index,node *head)
+{
+  //int pos = index-1;
+
+  //char *cmd_str;
+
+  int i ;
+  node *temp = head;
+  
+  for(i=1;i<index;i++)
+  {
+    temp = temp->next;
+    if(temp == NULL) return NULL;
+  }
+  //strcpy(cmd_str,temp->cmd_str_node);
+  return temp->cmd_str_node;
+}
+
 void print_history(node *head)
 {
   if ( head == NULL)
@@ -166,6 +184,14 @@ int main()
     if(cmd_str[0] == '\n')
     {   
       continue;
+    }
+    else if ( cmd_str[0] == '!')
+    {
+      char ch = cmd_str[1];
+      int n = (int)ch;
+      char *res_str = retrieve_command(n,head);
+      strcpy(cmd_str,res_str);
+
     }
 
     /* Parse input */

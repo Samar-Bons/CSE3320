@@ -19,9 +19,8 @@
  */
 // \TODO 
 /*
-  -!n where n > 9 add functionality 
   -Document
-  -Edge cases
+  
   
 */
 
@@ -45,10 +44,11 @@
 
 #define MAX_NUM_ARGUMENTS 11    // Mav shell only supports 10 arguments and one command
 
-#define MAX_HISTORY_LENGTH 15   // Linked List for command history will have capacity of 15 
+#define MAX_HISTORY_SIZE 15    // Linked List for command history 
+                               // will have capacity of 15
 
-//Linked List node to store cmd_str and PID 
-//of a process for history/listpids for last 15 commands
+// Linked List node to store cmd_str and PID 
+// of a process for history/listpids for last 15 commands
 
 typedef struct node
 {
@@ -57,92 +57,94 @@ typedef struct node
   struct node *next;  
 } node;
 
-//Function to add current cmd_str and pid 
-//to the Linked List of last 15 commands
 
-node *head = NULL;
+// Function to add current cmd_str and pid 
+// to the fixed capacity Linked List of last 15 commands
 
 void add_command(node **head, pid_t pid, char *cmd_str)
 {
-  node *new = (node*) malloc (sizeof(node));
-  strcpy(new->cmd_str_node,cmd_str);
-  new->process_id = pid;
+  node *new = (node*) malloc (sizeof(node));      // Initialize a new node
+  strcpy(new->cmd_str_node,cmd_str);              // with the given process id,
+  new->process_id = pid;                          // command string and NULL next pointer
   new->next = NULL;
 
   if(*head == NULL)
   {
-    *head = new;
-  }
+    *head = new;                          // If Linked list is empty
+  }                                       // new node is head
 
   else
   {
-    //Current confirmed number of nodes in Linked List
-    int length = 1;
+                               
+    int size = 1;                        // Current confirmed size of Linked List
 
-    //temp node to iterate the LL
-    node *temp = *head;
+    
+    node *temp = *head;             // temp node to iterate the LL
 
-    while(temp->next != NULL)
-    {
-      length++;
+    while(temp->next != NULL)       // Iterating through the Linked List 
+    {                               // to reach the last node
+      size++;
       temp = temp->next;
     }
 
-    temp->next = new;
+    temp->next = new;               // Attach the latest node to the Linked List
 
-    //Removing the oldest command in history if adding new command
-    // to max size linked list
-    if(length == MAX_HISTORY_LENGTH)
+    
+    if(size == MAX_HISTORY_SIZE)
     {
-      node *temp_head = *head;
-      *head = (*head)->next;
-      free(temp_head);
+      node *temp_head = *head;       // Creating a temp node holding original head
+      *head = (*head)->next;         // so that we can set the 2nd element as new head
+      free(temp_head);               // and free the first node
     }       
   }
 }
 
+
+// Function to go through the historic command linked list if it exists 
+// and return the command string at index position. (linked list starts at 0)
+
 char *retrieve_command(int index,node *head)
 {
-  //int pos = index-1;
-
-  //char *cmd_str;
-
-  int i ;
-  node *temp = head;
+    
+  node *temp = head;                   // Temp node pointing at head for iteration
   
-  for(i=1;i<=index;i++)
-  {
+  int i;
+  for(i=1;i<=index;i++)                // If index 0 then no iteration loop  
+  {                                       
     temp = temp->next;
-    if(temp == NULL) return NULL;
+    if(temp == NULL) return NULL;      // If no command found
   }
-  //strcpy(cmd_str,temp->cmd_str_node);
+  
   return temp->cmd_str_node;
 }
 
-void print_history(node *head)
+
+// Function to print all the commands in linked list
+void print_command_history(node *head)
 {
   if ( head == NULL)
   {
     return;
   }
 
-  node *temp = head;
-
-  
-  printf("\n");
+  node *temp = head;                    //Iterator
 
   int index = 0;
-  
-  //Print all the commands in history
   while(temp != NULL)
   {
-    printf("%d: %s\n",index++,temp->cmd_str_node);
+    printf("%d: %s\n",index,temp->cmd_str_node);
     temp = temp->next;
-    
+    index++;
   }
 }
 
-void print_pid(node *head)
+
+// Function to print process IDS of commands in linked list. 
+// Note - Since cd, history, listpids, showpids are functions
+// of the MavShell 1.0 and not processes, they have the same 
+// process ID as MavShell
+
+void print_command_pid(node *head)
 {
   if ( head == NULL )
   {
@@ -154,26 +156,26 @@ void print_pid(node *head)
 
   while(temp != NULL)
   {
-    if(temp->process_id)
-    {
-      printf("%d: %ld\n",index++,(long)temp->process_id);
-    }
+    printf("%d: %ld\n",index,(long)temp->process_id);
     temp = temp->next;
+    index++;
   }
 }
 
 
 int main()
 {
-
+  pid_t current_pid = getpid();            // Obtain current pid for MavShell
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
+  node *head = NULL;                       // Empty head for Linked List
+
 
   while( 1 )
   {
     // Print out the msh prompt
     printf ("msh> ");
 
-    // Read the command from the commandline.  The
+    // Read the command from the commandline. The
     // maximum command that will be read is MAX_COMMAND_SIZE
     // This while command will wait here until the user
     // inputs something since fgets returns NULL when there
@@ -181,19 +183,23 @@ int main()
     while( !fgets (cmd_str, MAX_COMMAND_SIZE, stdin) );
 
 
-    //Quitly and with no other output, shell prints
-    //another prompt by skipping through the rest of the loop if 
-    //input is \n
+    // Quitly and with no other output, shell prints
+    // another prompt by skipping through the rest of the loop if 
+    // input is \n
 
     if(cmd_str[0] == '\n')
     {   
       continue;
     }
+
+
+    // When command is !n where n is a number between 0 and 15
+    // and makes our shell re-run the nth command in the Linked List
     else if ( cmd_str[0] == '!')
     {
       int integer;
-      if(cmd_str[2] != '\0')
-      {
+      if(cmd_str[2] != '\0')              // Cases for parsing n
+      {                                   // when it is single and double digit
         char a = cmd_str[1];
         char b = cmd_str[2];
         char str1[3] = {a,b,'\0'};
@@ -208,18 +214,16 @@ int main()
 
      
       
-      char *res_str = retrieve_command(integer,head);
-
-      if(res_str == NULL)
+      char *res_str = retrieve_command(integer,head);  // Retrieving the nth command
+                                                       // string OR NULL if it does 
+      if(res_str == NULL)                              // not exist
       {
         printf("\nCommand not found.\n");
-        print_history(head);
+        print_command_history(head);
         continue;
       }
-
-      //printf("%s\n",res_str);
-      
       strcpy(cmd_str,res_str);
+      free(res_str);
 
     }
 
@@ -251,52 +255,47 @@ int main()
         token_count++;
     }
 
-    //Shell will exit with status 0 if command is "exit" or "quit"
+    // Shell will exit with status 0 if command is "exit" or "quit"
     if(strcmp(token[0],"exit") == 0 || strcmp(token[0],"quit") == 0)
     {
-      exit(0);
+      exit(0);                 
     }
+
+    // Shell will print command history if command is "history"
     else if(strcmp(token[0],"history") == 0) 
     {
-      print_history(head);
-      add_command(&head,0,cmd_str);
+      print_command_history(head);
+      add_command(&head,current_pid,cmd_str);
       continue;
     }
 
+    // Shell will print past pids from history if command is 
+    // "showpids" OR "listpids"
     else if(strcmp(token[0],"listpids") == 0 || strcmp(token[0],"showpids") == 0)
     {
-      print_pid(head);
-      add_command(&head,0,cmd_str);
+      print_command_pid(head);
+      add_command(&head,current_pid,cmd_str);
       continue;
     }
 
+    // Shell will change directory depending on arguments if command is "cd"
     else if(strcmp(token[0],"cd") == 0)
     {
       if(token[1] == NULL)
       {
-        chdir(getenv("HOME"));
+        chdir(getenv("HOME"));       // if command = cd then go to /home
       }
       else 
       {
-        chdir(token[1]);
+        chdir(token[1]);             // else go to the directory in argument or ..
       }
-      add_command(&head,0,cmd_str);
+      add_command(&head,current_pid,cmd_str);
       continue;
     }
 
-    /* if ((strcmp(token[0],"quit") == 0) || (strcmp(token[0],"exit") == 0 ))
-    {
-        exit(0);
-    }
-    */
-    // Now print the tokenized input as a debug check
-    // \TODO Remove this code and replace with your shell functionality
 
-    //  int token_index  = 0;
-    //for( token_index = 0; token_index < token_count; token_index ++ ) 
-    //{
-    //  printf("token[%d] = %s\n", token_index, token[token_index] );  
-    //}
+    // Forking a child process will then will be used to create a new process
+
     pid_t pid = fork();
     if ( pid == -1)
     {
@@ -306,23 +305,28 @@ int main()
     }
     else if ( pid == 0)
     {
-
+      // We are inside the child process
+      // We call execvp with arguments token[0] which is the command
+      // and the entire command string
       int ret = execvp(token[0],&token[0]);
       
       if ( ret == -1 )
       {
+        // When command is invalid
         printf("%s: Command not found.\n\n",token[0]);
       }
     }
     else
     {
-      add_command(&head,pid,cmd_str);
-      int status;
-      wait( &status );
+      // We are in the parent process
+      add_command(&head,pid,cmd_str);     // Add the child's
+      int status;                         // PID and command string
+      wait( &status );                    // to the Linked List
     }
 
 
     free( working_root );
+    
 
   }
   return 0;

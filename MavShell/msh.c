@@ -1,6 +1,9 @@
 /* 
   Name: Samarjit Singh Bons
   ID:   1001623236 
+  Optional: compile and run with "image.txt" in the same directory 
+  to add visual appeal.
+ 
 */
 
 

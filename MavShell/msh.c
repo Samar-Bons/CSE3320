@@ -163,7 +163,6 @@ void print_pid(node *head)
 }
 
 
-
 int main()
 {
 
@@ -192,15 +191,24 @@ int main()
     }
     else if ( cmd_str[0] == '!')
     {
-      char *str_i = *cmd_str[1] ;
-      //char str[2] = "\0";
-      //str[0] = ch;
-      int n = atoi(str_i);
+      int integer;
+      if(cmd_str[2] != '\0')
+      {
+        char a = cmd_str[1];
+        char b = cmd_str[2];
+        char str1[3] = {a,b,'\0'};
+        integer = atoi(str1); 
+      }
+      else
+      {
+        char c = cmd_str[1];
+        char str2[2] = {c,'\0'};
+        integer = atoi(str2);
+      }
+
+     
       
-      //d
-      //printf("\n%d\n",n);
-      //printf("\n%d\n",n);
-      char *res_str = retrieve_command(n,head);
+      char *res_str = retrieve_command(integer,head);
 
       if(res_str == NULL)
       {
@@ -248,7 +256,7 @@ int main()
     {
       exit(0);
     }
-    else if(strcmp(token[0],"history") == 0)
+    else if(strcmp(token[0],"history") == 0) 
     {
       print_history(head);
       add_command(&head,0,cmd_str);
@@ -303,7 +311,7 @@ int main()
       
       if ( ret == -1 )
       {
-        printf("%s: Command not found.\n",token[0]);
+        printf("%s: Command not found.\n\n",token[0]);
       }
     }
     else

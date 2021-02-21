@@ -1,28 +1,17 @@
 /* 
-
   Name: Samarjit Singh Bons
   ID:   1001623236 
-
 */
 
 
 /*
- *
- *     ___  ___              _____ _          _ _   __   _____ 
- *    |  \/  |             /  ___| |        | | | /  | |  _  |
- *    | .  . | __ ___   __ \ `--.| |__   ___| | | `| | | |/' |
- *    | |\/| |/ _` \ \ / /  `--. \ '_ \ / _ \ | |  | | |  /| |
- *    | |  | | (_| |\ V /  /\__/ / | | |  __/ | | _| |_\ |_/ /
- *    \_|  |_/\__,_| \_/   \____/|_| |_|\___|_|_| \___(_)___/ 
- *                                                            
- *                                                            
+        __  ___            _____ __         ____   ___ ____ 
+       /  |/  /___ __   __/ ___// /_  ___  / / /  <  // __ \
+      / /|_/ / __ `/ | / /\__ \/ __ \/ _ \/ / /   / // / / /
+     / /  / / /_/ /| |/ /___/ / / / /  __/ / /   / // /_/ / 
+    /_/  /_/\__,_/ |___//____/_/ /_/\___/_/_/   /_(_)____/  
+                                                                 
  */
-// \TODO 
-/*
-  -Document
-  
-  
-*/
 
 
 #define _GNU_SOURCE
@@ -44,8 +33,10 @@
 
 #define MAX_NUM_ARGUMENTS 11    // Mav shell only supports 10 arguments and one command
 
-#define MAX_HISTORY_SIZE 15    // Linked List for command history 
-                               // will have capacity of 15
+#define MAX_LEN 1000            // Max length for image file to print (optional) 
+
+#define MAX_HISTORY_SIZE 15     // Linked List for command history 
+                                // will have capacity of 15
 
 // Linked List node to store cmd_str and PID 
 // of a process for history/listpids for last 15 commands
@@ -60,6 +51,12 @@ typedef struct node
 
 // Function to add current cmd_str and pid 
 // to the fixed capacity Linked List of last 15 commands
+void print_image(FILE *fptr)
+{
+  char read_string[MAX_LEN];
+  while(fgets(read_string, sizeof(read_string), fptr)!= NULL)
+  printf("%s",read_string);
+}
 
 void add_command(node **head, pid_t pid, char *cmd_str)
 {
@@ -168,7 +165,21 @@ int main()
   pid_t current_pid = getpid();            // Obtain current pid for MavShell
   char * cmd_str = (char*) malloc( MAX_COMMAND_SIZE );
   node *head = NULL;                       // Empty head for Linked List
+  
+ 
+  // Added optional functionality to print visually appealing graphic at 
+  // startup of MavShell 1.0
+  // can be enabled by storing "image.txt" in the same directory
 
+  char* filename = "image.txt";
+  FILE *fptr = NULL;
+
+  if((fptr = fopen(filename,"r")) != NULL)
+  {
+    print_image(fptr);
+  }
+
+  printf("\n\n");
 
   while( 1 )
   {

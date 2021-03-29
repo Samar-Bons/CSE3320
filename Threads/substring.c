@@ -5,6 +5,9 @@
 #include <pthread.h>
 
 #define MAX 5000000
+#define NUM_THREADS 4
+
+pthread_mutex_t mutex;
 
 int total = 0;
 int n1,n2; 
@@ -49,11 +52,25 @@ int readf(char* filename)
     }
 }
 
-int num_substring ( void )
+void* num_substring ( void * _tid )
 {
+    int tid = *((int *) _tid);  
+    //free(_tid);
+    int start = tid * (n1/NUM_THREADS);
+    int end = (tid+1) * (n1/NUM_THREADS);
+
+    if(tid == NUM_THREADS-1)
+    {
+        end = end - n2;
+    }
+
+
     int i,j,k;
     int count ;
-    for (i = 0; i <= (n1-n2); i++)
+    int th_total = 0;
+
+    // Tweak this for loop for optimal perf
+    for (i = start; i <= end; i++)
     {
         count =0;
         for(j = i ,k = 0; k < n2; j++,k++)
@@ -67,15 +84,19 @@ int num_substring ( void )
                 count++;
             }
             if (count==n2)
-                total++; /*find a substring in this step*/
+                th_total++; /*find a substring in this step*/
          }
     }
-    return total ;
+    pthread_mutex_lock(&mutex);
+    total = total + th_total;
+    pthread_mutex_unlock(&mutex);
+    
 }
     
 int main(int argc, char *argv[])
 {
-    int count ;
+    int count,i,status ;
+    pthread_mutex_init(&mutex,NULL);
 
     if( argc < 2 )
     {
@@ -90,7 +111,38 @@ int main(int argc, char *argv[])
 
     gettimeofday(&start, NULL);
 
-    count = num_substring () ;
+    int ints[NUM_THREADS]; 
+    pthread_t tid[NUM_THREADS];
+    
+    for(i = 0; i < NUM_THREADS; i++)
+    {
+        ints[i] = i;
+        if(pthread_create(&tid[i],NULL,num_substring,&ints[i]))
+        {
+
+            printf("Error creating thread %d\n",ints[i]);
+
+        }  
+    }
+
+
+    for(i = 0; i < NUM_THREADS; i++)
+    {
+
+        if(pthread_join(tid[i],NULL))
+        {
+
+            printf("Error joining thread %d\n",i);
+
+        }
+    }
+
+
+    count = total;
+
+
+
+    //count = num_substring () ;
 
     gettimeofday(&end, NULL);
 
@@ -100,7 +152,7 @@ int main(int argc, char *argv[])
 
     printf ("The number of substrings is : %d\n" , count) ;
     printf ("Elapsed time is : %f milliseconds\n", mtime );
-
+    printf ("Number of threads used : %d \n", NUM_THREADS );
     if( s1 )
     {
       free( s1 );

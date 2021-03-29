@@ -159,7 +159,7 @@ int main( int argc, char *argv[] )
   // Adding a dummy value to the queue to start the program.
   // A truly empty queue causes a deadlock. 
   enQueue(' ');
-
+  
   pthread_t producer_tid;  
   pthread_t consumer_tid;  
 

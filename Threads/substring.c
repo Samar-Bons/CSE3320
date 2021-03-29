@@ -1,3 +1,12 @@
+/*
+
+Samarjit Singh Bons
+1001623236
+gcc -pthread -o substring substring.c
+
+
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

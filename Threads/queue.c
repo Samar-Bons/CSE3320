@@ -1,3 +1,13 @@
+/*
+
+Samarjit Singh Bons
+1001623236
+gcc -pthread -o queue queue.c
+
+
+*/
+
+
 #include <stdio.h>
 #include <assert.h>
 #include <pthread.h>
@@ -5,20 +15,20 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define SIZE 5
+
 #define NONSHARED 1
 
 sem_t char_in_buffer, char_printed_out;
-int char_waiting = 1;
-pthread_mutex_t mutex;
 
-char queue[SIZE];
+
+
+char queue[5];
 int front = -1, rear = -1;
 
 // Function to check if the queue is full
 int isFull() 
 {
-  if ((front == rear + 1) || (front == 0 && rear == SIZE - 1))
+  if ((front == rear + 1) || (front == 0 && rear == 4))
   { 
     return 1;
   }
@@ -37,15 +47,15 @@ int isEmpty()
 }
 
 // Function to add an element to the queue
-void enQueue(char element) 
+void enQueue(char ch) 
 {
   if (isFull())
     printf("\n Queue is full!! \n");
   else 
   {
     if (front == -1) front = 0;
-    rear = (rear + 1) % SIZE;
-    queue[rear] = element;
+    rear = (rear + 1) % 5;
+    queue[rear] = ch;
     
   }
 }
@@ -53,7 +63,7 @@ void enQueue(char element)
 // Function to remove an element
 char deQueue() 
 {
-  char element;
+  char ch;
   if (isEmpty()) 
   {
     printf("\n Queue is empty !! \n");
@@ -61,7 +71,7 @@ char deQueue()
   } 
   else 
   {
-    element = queue[front];
+    ch = queue[front];
     if (front == rear) 
     {
       front = -1;
@@ -70,10 +80,10 @@ char deQueue()
     
     else 
     {
-      front = (front + 1) % SIZE;
+      front = (front + 1) % 5;
     }
     
-    return (element);
+    return (ch);
   }
 }
 
